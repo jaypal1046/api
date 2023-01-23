@@ -7,6 +7,12 @@ from scipy.signal import butter, convolve, find_peaks, filtfilt
 app = Flask(__name__)
 
 
+
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+
 class NumpyEncoder(json.JSONEncoder):
     """ Special json encoder for numpy types """
 
@@ -86,16 +92,23 @@ def get_beats_per_min():
     token_result = request.args['token']
     complete_url = query_result+"&token="+token_result
 
-    print(complete_url)
+    print("error 1046 "+complete_url)
+    #print("error 1046 "+request.args)
+    print("1046 chrck {}".format(request.args))
 
     # Create a video capture object and read
-    video_data = cv2.VideoCapture(complete_url)
+    video_data = cv2.VideoCapture("https://firebasestorage.googleapis.com/v0/b/immunomate.appspot.com/o/files%2Ftest.mp4?alt=media&token=0b0748d3-ea8d-4245-b4ef-e23e952b119d")
+    print("1046 chrck {}".format(video_data.isOpened()))
     fps = video_data.get(cv2.CAP_PROP_FPS)
+    #print("1046 chrck"+fps)
     frame_count = int(video_data.get(cv2.CAP_PROP_FRAME_COUNT))
-    vid_length = frame_count/fps
+    #print("1046 chrck"+frame_count)
+    #vid_length = frame_count/fps
+    #print("1046 chrck"+vid_length)
     time_bw_frame = 1.0/fps
     
-    print(time_bw_frame)
+    
+    #print("no error 1046"+time_bw_frame)
 
     while True:
         ret, frame = video_data.read()
