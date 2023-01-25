@@ -61,7 +61,7 @@ def process_signal(y, order_of_bandpass, high, low, sampling_rate, average_filte
 
 
 def give_bpm(averaged, time_bw_fram):
-    print(time_bw_fram)
+    print("this is the value check {} 1123 {}".format(time_bw_fram,averaged))
     r_min_peak = min(averaged)+(max(averaged)-min(averaged))/16
     r_peaks = find_peaks(averaged, height=r_min_peak)
     diff_sum = 0
@@ -71,12 +71,14 @@ def give_bpm(averaged, time_bw_fram):
     while i < total_peaks-1:
         diff_sum = diff_sum+r_peaks[0][i+1]-r_peaks[0][i]
         i = i+1
-
-    avg_diff = float(diff_sum/(total_peaks-1))
-    avg_time_bw_peaks = float(avg_diff*time_bw_fram)
-    bpm = float(60.0/avg_time_bw_peaks)
-    print("Calculated heart rate "+str(bpm))
-    return bpm
+    if diff_sum==0:
+        return 0
+    else:
+        avg_diff = float(diff_sum/(total_peaks-1))
+        avg_time_bw_peaks = float(avg_diff*time_bw_fram)
+        bpm = float(60.0/avg_time_bw_peaks)
+        #print("Calculated heart rate "+str(bpm))
+        return bpm
 
 
 @app.route('/api', methods=['GET'])
@@ -92,13 +94,13 @@ def get_beats_per_min():
     token_result = request.args['token']
     complete_url = query_result+"&token="+token_result
 
-    print("error 1046 "+complete_url)
-    #print("error 1046 "+request.args)
-    print("1046 chrck {}".format(request.args))
+    print("error 1046 {},{} ".format(query_result,request.args))
+    print("error 1046 {}".format(token_result))
+    print("1046 check {}".format(complete_url))
 
     # Create a video capture object and read
-    video_data = cv2.VideoCapture("https://firebasestorage.googleapis.com/v0/b/immunomate.appspot.com/o/files%2Ftest.mp4?alt=media&token=0b0748d3-ea8d-4245-b4ef-e23e952b119d")
-    print("1046 chrck {}".format(video_data.isOpened()))
+    video_data = cv2.VideoCapture(complete_url.replace("\"",""))
+    #print("1046 chrck {}".format(video_data.isOpened()))
     fps = video_data.get(cv2.CAP_PROP_FPS)
     #print("1046 chrck"+fps)
     frame_count = int(video_data.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -132,6 +134,7 @@ def get_beats_per_min():
         R = np.append(R, sumr/no_of_pixels)
         G = np.append(G, sumg/no_of_pixels)
         B = np.append(B, sumb/no_of_pixels)
+        #print("jay check {}".format(B))
 
     # discarding first few frames and last few
 
@@ -154,6 +157,7 @@ def get_beats_per_min():
                                 r_cutoff_low, r_sampling_rate, r_average_filter_sample_length)
     b_averaged = process_signal(B, r_order_of_bandpass, r_cutoff_high,
                                 r_cutoff_low, r_sampling_rate, r_average_filter_sample_length)
+    #print("jaypal {},{},{},{},{},{}".format(B,r_order_of_bandpass,r_cutoff_high,r_cutoff_low,r_sampling_rate,r_average_filter_sample_length))
 
     bpms = []
     bpms.append(give_bpm(r_averaged, time_bw_frame))
